@@ -1,0 +1,58 @@
+div.field-tabbed_textarea > div > i
+{
+    float: right;
+}
+div.field-tabbed_textarea ul.tabs {
+    margin: 0;
+}
+div.field-tabbed_textarea ul.tabs li {
+    display: block;
+    float: left;
+    border: 1px solid #ccc;
+    border-bottom: 0;
+    padding: 4px 10px 4px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 2px;
+    border-radius: 3px 3px 0 0;
+    /* font-size: 14px; */
+}
+div.field-tabbed_textarea ul.tabs li input {
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: #999;
+}
+div.field-tabbed_textarea ul.tabs li input.focus, div.field-tabbed_textarea ul.tabs li.active input {
+    color: #000;
+    font-weight: bold;
+}
+div.field-tabbed_textarea ul.tabs li input[readonly=readonly] {
+    cursor: pointer;
+}
+div.field-tabbed_textarea ul.tabs li.active {
+    color: #000;
+    background: #ddb;
+}
+div.field-tabbed_textarea ul.tabs li a.delete {
+    /* font-size: 10px; */
+    text-decoration: none;
+    color: #fff;
+    background: #ccc;
+    padding: 1px 3px;
+    border-radius: 7px;
+    margin-left: 5px;
+}
+div.field-tabbed_textarea ul.tabs li a.delete:hover {
+    background: #800;
+}
+div.field-tabbed_textarea ul.tabs li.new {
+    background: #ddd;
+    color: #000;
+}
+div.field-tabbed_textarea textarea {
+    margin-top: 0;
+}
