@@ -29,7 +29,6 @@
 		}
 
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL){
-			// $label = Widget::Label($this->get('label'));
             $label = new XMLElement('div', $this->get('label'));
 			if($this->get('required') != 'yes') $label->appendChild(new XMLElement('i', __('Optional')));
 
@@ -42,20 +41,19 @@
             if($new)
             {
                 // Only show the default tabs:
-                $a = explode(',', $this->get('default_tabs'));
-                $i = 0;
-                foreach($a as $tab)
-                {
-                    $tab = trim($tab);
-
-                    $i++;
-                    $deleteStr = $delete ? '<a href="#" class="delete">×</a>' : '';
-                    $readOnly  = $delete ? '' : ' readonly="readonly" ';
-                    $tabs->appendChild(new XMLElement('li', '<input type="text" '.$readOnly.' name="tab'.$i.'" value="'.$tab.'" /> '.$deleteStr, array('class'=>'tab'.$i)));
-                }
+                $tabsArray = explode(',', $this->get('default_tabs'));
             } else {
-                // Show the tabs:
-
+                // Show the tabs according to the data:
+                $tabsArray = $data['tab'];
+            }
+            $i = 0;
+            foreach($tabsArray as $tab)
+            {
+                $tab = trim($tab);
+                $i++;
+                $deleteStr = $delete ? '<a href="#" class="delete">×</a>' : '';
+                $readOnly  = $delete ? '' : ' readonly="readonly" ';
+                $tabs->appendChild(new XMLElement('li', '<input type="text" '.$readOnly.' name="fields'.$fieldnamePrefix.'['.$this->get('element_name').'][tabs]['.$i.']'.$fieldnamePostfix.'" value="'.$tab.'" /> '.$deleteStr, array('class'=>'tab'.$i)));
             }
 
             // The tab to create new tabs:
@@ -65,51 +63,50 @@
             }
             $label->appendChild($tabs);
 
-            // Create the textarea:
-            if($new) {
-                // This is a new entry, show the default textareas:
-                $a = explode(',', $this->get('default_tabs'));
-                $i = 0;
-                foreach($a as $tab)
-                {
-                    $tab = trim($tab);
-                    $i++;
-                    $textarea = new XMLElement('textarea', null, array(
-                        'name'=>'fields['.$this->get('element_name').']['.$i.']',
-                        'rows'=>$this->get('size'),
-                        'cols'=>50,
-                        'class'=>'tab'.$i
-                        )
-                    );
-                    if($this->get('formatter') != 'none')
-                    {
-                        $textarea->setAttribute('class', 'tab'.$i.' '.$this->get('formatter'));
-                    } else {
-                        $textarea->setAttribute('class', 'tab'.$i);
-                    }
+            // Create the textareas:
 
-                    /**
-                     * Allows developers modify the textarea before it is rendered in the publish forms
-                     *
-                     * @delegate ModifyTextareaFieldPublishWidget
-                     * @param string $context
-                     * '/backend/'
-                     * @param Field $field
-                     * @param Widget $label
-                     * @param Widget $textarea
-                     */
-                    Symphony::ExtensionManager()->notifyMembers('ModifyTextareaFieldPublishWidget', '/backend/', array(
-                        'field' => &$this,
-                        'label' => &$label,
-                        'textarea' => &$textarea
-                    ));
-                    $label->appendChild($textarea);
+            $i = 0;
+            foreach($tabsArray as $c => $tab)
+            {
+                $i++;
+                if($new) {
+                    // This is a new entry, show the default textareas:
+                    $value = '';
+                } else {
+                    // Show the content from the data:
+                    $value = $data['value'][$c];
                 }
-            } else {
-                // Show the textareas:
+                $textarea = new XMLElement('textarea', $value, array(
+                    'name'=>'fields'.$fieldnamePrefix.'['.$this->get('element_name').'][content]['.$i.']'.$fieldnamePostfix,
+                    'rows'=>$this->get('size'),
+                    'cols'=>50,
+                    'class'=>'tab'.$i
+                    )
+                );
+                if($this->get('formatter') != 'none')
+                {
+                    $textarea->setAttribute('class', 'tab'.$i.' '.$this->get('formatter'));
+                } else {
+                    $textarea->setAttribute('class', 'tab'.$i);
+                }
 
+                /**
+                 * Allows developers modify the textarea before it is rendered in the publish forms
+                 *
+                 * @delegate ModifyTextareaFieldPublishWidget
+                 * @param string $context
+                 * '/backend/'
+                 * @param Field $field
+                 * @param Widget $label
+                 * @param Widget $textarea
+                 */
+                Symphony::ExtensionManager()->notifyMembers('ModifyTextareaFieldPublishWidget', '/backend/', array(
+                    'field' => &$this,
+                    'label' => &$label,
+                    'textarea' => &$textarea
+                ));
+                $label->appendChild($textarea);
             }
-
 
 			if($flagWithError != NULL) $wrapper->appendChild(Widget::wrapFormElementWithError($label, $flagWithError));
 			else $wrapper->appendChild($label);
@@ -142,6 +139,7 @@
 		}
 
 		public function buildDSRetrivalSQL($data, &$joins, &$where) {
+
 			$field_id = $this->get('id');
 
 			if (self::isFilterRegex($data[0])) {
@@ -201,20 +199,34 @@
 		}
 
 		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
-			$status = self::__OK__;
 
-			$result = array(
-				'value' => $data
-			);
 
-			$result['value_formatted'] = $this->__applyFormatting($data, true, $errors);
-			if($result['value_formatted'] === false){
-				//run the formatter again, but this time do not validate. We will sanitize the output
-				$result['value_formatted'] = General::sanitize($this->__applyFormatting($data));
-			}
+            $status = self::__OK__;
 
-			return $result;
+            $result = array(
+                'tab' => array(),
+                'value' => array(),
+                'value_formatted' => array()
+            );
+
+            // Store new tabs:
+            foreach($data['tabs'] as $tabNr => $tab)
+            {
+                $content = $data['content'][$tabNr];
+                $result['tab'][] = $tab;
+                $result['value'][] = $content;
+                $formatted = $this->__applyFormatting($content, true, $errors);
+                if($formatted === false)
+                {
+				    //run the formatter again, but this time do not validate. We will sanitize the output
+				    $formatted = General::sanitize($this->__applyFormatting($data));
+			    }
+                $result['value_formatted'][] = $formatted;
+            }
+
+            return $result;
 		}
+
 
 		protected function __applyFormatting($data, $validate=false, &$errors=NULL){
 
@@ -252,46 +264,35 @@
 		}
 
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
+            $element = new XMLElement($this->get('element_name'));
 
-			if ($mode == null || $mode == 'formatted') {
+            foreach($data['tab'] as $c => $tab)
+            {
+                $attributes = array('name' => $tab, 'handle' => Lang::createHandle($tab));
 
-				if ($this->get('formatter') && isset($data['value_formatted'])) {
-					$value = $data['value_formatted'];
-				}
+                if($mode == null || $mode == 'formatted') {
+                    if ($this->get('formatter') && isset($data['value_formatted'])) {
+                        $value = $data['value_formatted'][$c];
+                    } else {
+                        $value = $data['value'][$c];
+                    }
 
-				else {
-					$value = $data['value'];
-				}
+                    $value = $this->__replaceAmpersands($value);
+                    if ($mode == 'formatted') {
+                        $attributes['mode'] = $mode;
+                    }
 
-				$value = $this->__replaceAmpersands($value);
+                    $element->appendChild(new XMLElement('tab', ($encode ? General::sanitize($value) : $value), $attributes));
 
-				$attributes = array();
-				if ($mode == 'formatted') $attributes['mode'] = $mode;
+                } elseif($mode == 'unformatted') {
+                    $attributes['mode'] = $mode;
 
-				$wrapper->appendChild(
-					new XMLElement(
-						$this->get('element_name'),
-						($encode ? General::sanitize($value) : $value),
-						$attributes
-					)
-				);
+                    $element->appendChild(new XMLElement('tab', sprintf('<![CDATA[%s]]>', str_replace(']]>',']]]]><![CDATA[>', $data['value'][$c])), $attributes));
 
-			}
+                }
 
-			elseif ($mode == 'unformatted') {
-
-				$wrapper->appendChild(
-					new XMLElement(
-						$this->get('element_name'),
-						sprintf('<![CDATA[%s]]>', str_replace(']]>',']]]]><![CDATA[>',$data['value'])),
-						array(
-							'mode' => $mode
-						)
-					)
-				);
-
-			}
-
+            }
+            $wrapper->appendChild($element);
 		}
 
 		function checkFields(&$required, $checkForDuplicates=true, $checkForParentSection=true){
@@ -354,11 +355,12 @@
 				"CREATE TABLE IF NOT EXISTS `tbl_entries_data_" . $this->get('id') . "` (
 				  `id` int(11) unsigned NOT NULL auto_increment,
 				  `entry_id` int(11) unsigned NOT NULL,
-				  `relation_id` int(11) unsigned NOT NULL,
+                  `tab` tinytext NOT NULL,
+                  `value` text NOT NULL,
+                  `value_formatted` text NOT NULL,
 				  PRIMARY KEY  (`id`),
-				  UNIQUE KEY `entry_id` (`entry_id`)
+				  KEY `entry_id` (`entry_id`)
 				) ENGINE=MyISAM;"
-
 			);
 		}
 

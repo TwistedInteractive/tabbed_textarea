@@ -15,7 +15,6 @@ div.field-tabbed_textarea ul.tabs li {
     font-weight: bold;
     margin-right: 2px;
     border-radius: 3px 3px 0 0;
-    /* font-size: 14px; */
 }
 div.field-tabbed_textarea ul.tabs li input {
     width: auto;
@@ -55,4 +54,9 @@ div.field-tabbed_textarea ul.tabs li.new {
 }
 div.field-tabbed_textarea textarea {
     margin-top: 0;
+}
+/* CKEditor support: */
+span[id^='cke_fields'] {
+    display: block;
+    clear: both;
 }

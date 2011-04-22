@@ -64,7 +64,7 @@ Class extension_tabbed_textarea extends Extension
     public function uninstall()
     {
         Symphony::Database()->query('DROP TABLE `tbl_fields_tabbed_textarea`;');
-        Symphony::Database()->query('DROP TABLE `tbl_tabbed_textarea_values`;');
+        // Symphony::Database()->query('DROP TABLE `tbl_tabbed_textarea_values`;');
     }
 
     /**
@@ -86,6 +86,7 @@ Class extension_tabbed_textarea extends Extension
             );
         ');
 
+        /*
         Symphony::Database()->query('
             CREATE TABLE IF NOT EXISTS `tbl_tabbed_textarea_values` (
               `id` int(11) unsigned NOT NULL auto_increment,
@@ -97,6 +98,7 @@ Class extension_tabbed_textarea extends Extension
               KEY `field_id` (`entry_id`)
             );
         ');
-
+        */
+        
     }
 }
