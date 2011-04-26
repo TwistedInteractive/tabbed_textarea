@@ -184,15 +184,20 @@
 
 			$message = NULL;
 
+            /*
 			if($this->get('required') == 'yes' && strlen($data) == 0){
 				$message = __("'%s' is a required field.", array($this->get('label')));
 				return self::__MISSING_FIELDS__;
 			}
+            */
 
-			if($this->__applyFormatting($data, true, $errors) === false){
-				$message = __('"%1$s" contains invalid XML. The following error was returned: <code>%2$s</code>', array($this->get('label'), $errors[0]['message']));
-				return self::__INVALID_FIELDS__;
-			}
+            foreach($data['content'] as $content)
+            {
+                if($this->__applyFormatting($content, true, $errors) === false){
+                    $message = __('"%1$s" contains invalid XML. The following error was returned: <code>%2$s</code>', array($this->get('label'), $errors[0]['message']));
+                    return self::__INVALID_FIELDS__;
+                }
+            }
 
 			return self::__OK__;
 
@@ -219,7 +224,7 @@
                 if($formatted === false)
                 {
 				    //run the formatter again, but this time do not validate. We will sanitize the output
-				    $formatted = General::sanitize($this->__applyFormatting($data));
+				    $formatted = General::sanitize($this->__applyFormatting($content));
 			    }
                 $result['value_formatted'][] = $formatted;
             }

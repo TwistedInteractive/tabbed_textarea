@@ -1,5 +1,6 @@
 // Add CKEditor support:
-var ckFound = false;
+var ckFound    = false;
+var intervalID = -1;
 
 jQuery(function($){
     ckFound = $("div.field-tabbed_textarea textarea.ckeditor").length > 0;
@@ -9,22 +10,25 @@ jQuery(function($){
 
     if(ckFound)
     {
-        // Hide all textareas, only show the first CKEditor:
-        $("div.field-tabbed_textarea textarea").hide();
-        // console.log(CKEDITOR.instances);
-        // for(i = 0; i < CKEDITOR.instances.length; i++)
-        {
-
-           // console.log(CKEDITOR.instances[i]);
-        }
+        intervalID = setInterval('checkForCKEditor()', 100);
     }
 
     $("div.field-tabbed_textarea ul.tabs li").click(function(){
         if(!($(this).hasClass("new")))
         {
             $("div.field-tabbed_textarea ul.tabs li").removeClass("active");
-            $("div.field-tabbed_textarea textarea").hide();
-            $("div.field-tabbed_textarea textarea." + $(this).attr("class")).show();
+            if(!ckFound)
+            {
+                // Plain textarea:
+                $("div.field-tabbed_textarea textarea").hide();
+                $("div.field-tabbed_textarea textarea." + $(this).attr("class")).show();
+            } else {
+                // CKEditor:
+                $("div.field-tabbed_textarea textarea").each(function(){
+                    $(this).next().hide();
+                });
+                $("div.field-tabbed_textarea textarea." + $(this).attr("class")).next().show();
+            }
             $(this).addClass("active");
         } else {
             // New tab:
@@ -33,11 +37,27 @@ jQuery(function($){
             var elemName = $("input[name=element_name]", $(this).parent().parent().parent()).val();
             $(this).before('<li class="tab' + total + '"><input type="text" name="fields['+ elemName +'][tabs][' + total + ']" value="enter name..." />' + deleteStr + '</li>');
             $("div.field-tabbed_textarea > div").append('<textarea rows="15" cols="50" name="fields['+ elemName +'][content][' + total + ']" class="tab' + total + '"></textarea>');
+            if(ckFound)
+            {
+                // Convert new textarea to a ckeditor instance:
+                var instance = $("div.field-tabbed_textarea > div > textarea:last")[0];
+                CKEDITOR.replace(instance);
+            }
             $("div.field-tabbed_textarea li.tab" + total + " input").focus();
             $("div.field-tabbed_textarea li.tab" + total).click(function(){
                 $("div.field-tabbed_textarea ul.tabs li").removeClass("active");
-                $("div.field-tabbed_textarea textarea").hide();
-                $("div.field-tabbed_textarea textarea." + $(this).attr("class")).show();
+                if(!ckFound)
+                {
+                    // Plain textarea:
+                    $("div.field-tabbed_textarea textarea").hide();
+                    $("div.field-tabbed_textarea textarea." + $(this).attr("class")).show();
+                } else {
+                    // CKEditor:
+                    $("div.field-tabbed_textarea textarea").each(function(){
+                        $(this).next().hide();
+                    });
+                    $("div.field-tabbed_textarea textarea." + $(this).attr("class")).next().show();
+                }
                 $(this).addClass("active");
             }).click();
 
@@ -63,11 +83,39 @@ function bindDelete()
     var $ = jQuery;
     $("div.field-tabbed_textarea ul.tabs li a.delete").unbind("click").click(function(){
         $("div.field-tabbed_textarea ul.tabs li").removeClass("active");
-        $("div.field-tabbed_textarea textarea." + $(this).parent().attr("class")).remove();
+        if(!ckFound)
+        {
+            // Plain textarea:
+            $("div.field-tabbed_textarea textarea." + $(this).parent().attr("class")).remove();
+            $("div.field-tabbed_textarea textarea").hide();
+            $("div.field-tabbed_textarea textarea:first").show();
+        } else {
+            // CKEditor:
+            $("div.field-tabbed_textarea textarea").each(function(){
+                $(this).next().hide();
+            });
+            var instance = $("div.field-tabbed_textarea textarea." + $(this).parent().attr("class"))[0];
+            CKEDITOR.remove(instance);
+            $("div.field-tabbed_textarea textarea:first").next().show();
+        }
         $(this).parent().remove();
         $("div.field-tabbed_textarea ul.tabs li:first").addClass("active");
-        $("div.field-tabbed_textarea textarea").hide();
-        $("div.field-tabbed_textarea textarea:first").show();
         return false;
     });
+}
+
+function checkForCKEditor()
+{
+    var $ = jQuery;
+    
+    if($("div.field-tabbed_textarea > div > span[id^=cke_]").length > 0)
+    {
+        // Hide all textareas, only show the first CKEditor:
+        $("div.field-tabbed_textarea textarea").each(function(){
+            $(this).hide();
+            $(this).next().hide();
+        });
+        $("div.field-tabbed_textarea textarea:first").next().show();
+        clearInterval(intervalID);
+    }
 }
