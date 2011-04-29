@@ -1,10 +1,4 @@
 <?php
-/**
- * (c) 2011 Twisted - www.twisted.nl
- * Author: Giel Berkers
- * Date: 21-4-11
- * Time: 15:12
- */
 
 Class extension_tabbed_textarea extends Extension
 {
