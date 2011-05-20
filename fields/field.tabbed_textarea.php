@@ -32,6 +32,21 @@
             $label = new XMLElement('div', $this->get('label'));
 			if($this->get('required') != 'yes') $label->appendChild(new XMLElement('i', __('Optional')));
 
+            // Weird bug? when the content is empty, an empty array is provided as object. Of this is the case, then
+            // manually get the data:
+            if(is_array($data) && count($data) == 1)
+            {
+                $callback = Administration::instance()->getPageCallback();
+                $entry_id = $callback['context']['entry_id'];
+                $data = array('tab'=>array(), 'value'=>array());
+                $rows = Symphony::Database()->fetch('SELECT `tab`, `value` FROM `tbl_entries_data_'.$this->get('id').'` WHERE `entry_id` = '.$entry_id.';');
+                foreach($rows as $row)
+                {
+                    $data['tab'][] = $row['tab'];
+                    $data['value'][] = $row['value'];
+                }
+            }
+
             // Create the tabs:
             $tabs = new XMLElement('ul', null, array('class'=>'tabs'));
             $new  = $data === null;
@@ -46,6 +61,11 @@
                 // Show the tabs according to the data:
                 $tabsArray = $data['tab'];
             }
+
+            if(!is_array($tabsArray)) {
+                $tabsArray = array($tabsArray);
+            }
+
             $i = 0;
             foreach($tabsArray as $tab)
             {
@@ -64,7 +84,6 @@
             $label->appendChild($tabs);
 
             // Create the textareas:
-
             $i = 0;
             foreach($tabsArray as $c => $tab)
             {
@@ -74,7 +93,12 @@
                     $value = '';
                 } else {
                     // Show the content from the data:
-                    $value = $data['value'][$c];
+                    if(is_array($data['value']))
+                    {
+                        $value = $data['value'][$c];
+                    } else {
+                        $value = $data['value'];
+                    }
                 }
                 $textarea = new XMLElement('textarea', $value, array(
                     'name'=>'fields'.$fieldnamePrefix.'['.$this->get('element_name').'][content]['.$i.']'.$fieldnamePostfix,
@@ -184,12 +208,10 @@
 
 			$message = NULL;
 
-            /*
-			if($this->get('required') == 'yes' && strlen($data) == 0){
-				$message = __("'%s' is a required field.", array($this->get('label')));
-				return self::__MISSING_FIELDS__;
-			}
-            */
+            if($this->get('required') == 'yes' && strlen($data['content'][1]) == 0){
+                $message = __("'%s' is a required field.", array($this->get('label')));
+                return self::__MISSING_FIELDS__;
+            }
 
             foreach($data['content'] as $content)
             {
@@ -198,13 +220,12 @@
                     return self::__INVALID_FIELDS__;
                 }
             }
-
+            
 			return self::__OK__;
 
 		}
 
 		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
-
 
             $status = self::__OK__;
 
@@ -271,15 +292,29 @@
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
             $element = new XMLElement($this->get('element_name'));
 
+            if(!is_array($data['tab'])) {
+                $data['tab'] = array($data['tab']);
+            }
+
             foreach($data['tab'] as $c => $tab)
             {
-                $attributes = array('name' => $tab, 'handle' => Lang::createHandle($tab));
+                $attributes = array('name' => General::sanitize($tab), 'handle' => Lang::createHandle($tab));
 
                 if($mode == null || $mode == 'formatted') {
                     if ($this->get('formatter') && isset($data['value_formatted'])) {
-                        $value = $data['value_formatted'][$c];
+                        if(is_array($data['value_formatted']))
+                        {
+                            $value = $data['value_formatted'][$c];
+                        } else {
+                            $value = $data['value_formatted'];
+                        }
                     } else {
-                        $value = $data['value'][$c];
+                        if(is_array($data['value']))
+                        {
+                            $value = $data['value'][$c];
+                        } else {
+                            $value = $data['value'];
+                        }
                     }
 
                     $value = $this->__replaceAmpersands($value);
@@ -361,8 +396,8 @@
 				  `id` int(11) unsigned NOT NULL auto_increment,
 				  `entry_id` int(11) unsigned NOT NULL,
                   `tab` tinytext NOT NULL,
-                  `value` text NOT NULL,
-                  `value_formatted` text NOT NULL,
+                  `value` text NULL,
+                  `value_formatted` text NULL,
 				  PRIMARY KEY  (`id`),
 				  KEY `entry_id` (`entry_id`)
 				) ENGINE=MyISAM;"
