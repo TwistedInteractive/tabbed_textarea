@@ -2,25 +2,6 @@
 
 Class extension_tabbed_textarea extends Extension
 {
-
-    /**
-     * About
-     * @return array    Information
-     */
-    public function about()
-    {
-        return array(
-            'name' => 'Field: Tabbed Textarea',
-            'version' => '1.0',
-            'release-date' => '2011-04-21',
-            'author' => array(
-                'name' => 'Giel Berkers',
-                'website' => 'http://www.gielberkers.com',
-                'email' => 'info@gielberkers.com'
-            )
-        );
-    }
-
     /**
      * Get the subscribed delegates
      * @return array    The delegates
@@ -38,16 +19,17 @@ Class extension_tabbed_textarea extends Extension
 
     /**
      * Add script to the <head>-section of the admin area
-     */
+	 * @param $context
+	 */
     public function addScriptToHead($context)
     {
-        $callback   = $context['parent']->getPageCallback();
+        $callback   = Administration::instance()->getPageCallback();
         $action     = isset($callback['context']['page']) ? $callback['context']['page'] : false;
 
         if($callback['driver'] == 'publish' && ($action == 'new' || $action == 'edit'))
         {
-            $context['parent']->Page->addScriptToHead(URL.'/extensions/tabbed_textarea/assets/tabbed_textarea.js', 51, false);
-            $context['parent']->Page->addStylesheetToHead(URL.'/extensions/tabbed_textarea/assets/tabbed_textarea.css', 'screen', 201);
+            Administration::instance()->Page->addScriptToHead(URL.'/extensions/tabbed_textarea/assets/tabbed_textarea.js', 551, false);
+	        Administration::instance()->Page->addStylesheetToHead(URL.'/extensions/tabbed_textarea/assets/tabbed_textarea.css', 'screen', 201);
         }
     }
 
@@ -58,7 +40,6 @@ Class extension_tabbed_textarea extends Extension
     public function uninstall()
     {
         Symphony::Database()->query('DROP TABLE `tbl_fields_tabbed_textarea`;');
-        // Symphony::Database()->query('DROP TABLE `tbl_tabbed_textarea_values`;');
     }
 
     /**
@@ -79,20 +60,5 @@ Class extension_tabbed_textarea extends Extension
               KEY `field_id` (`field_id`)
             );
         ');
-
-        /*
-        Symphony::Database()->query('
-            CREATE TABLE IF NOT EXISTS `tbl_tabbed_textarea_values` (
-              `id` int(11) unsigned NOT NULL auto_increment,
-              `entry_id` int(11) unsigned NOT NULL,
-              `tab` tinytext,
-              `value` text,
-              `value_formatted` text,
-              PRIMARY KEY  (`id`),
-              KEY `field_id` (`entry_id`)
-            );
-        ');
-        */
-        
     }
 }

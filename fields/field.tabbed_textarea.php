@@ -9,9 +9,11 @@
 	 */
 	
 	Class fieldTabbed_textarea extends Field {
-		function __construct(&$parent){
-
-			parent::__construct($parent);
+		/**
+		 * Constructor
+		 */
+		function __construct(){
+			parent::__construct();
 			$this->_name = __('Tabbed Textarea');
 			$this->_required = true;
 
@@ -20,14 +22,31 @@
 			$this->set('required', 'no');
 		}
 
+		/**
+		 * Can Filter?
+		 * @return bool
+		 */
 		function canFilter(){
 			return true;
 		}
 
+		/**
+		 * Can import?
+		 * @return bool
+		 */
 		public function canImport(){
 			return true;
 		}
 
+		/**
+		 * Publish panel
+		 *
+		 * @param \XMLElement $wrapper
+		 * @param null $data
+		 * @param null $flagWithError
+		 * @param null $fieldnamePrefix
+		 * @param null $fieldnamePostfix
+		 */
 		function displayPublishPanel(&$wrapper, $data=NULL, $flagWithError=NULL, $fieldnamePrefix=NULL, $fieldnamePostfix=NULL){
             $label = new XMLElement('div', $this->get('label'));
 			if($this->get('required') != 'yes') $label->appendChild(new XMLElement('i', __('Optional')));
@@ -141,6 +160,11 @@
 
 		}
 
+		/**
+		 * Save settings
+		 *
+		 * @return bool
+		 */
 		function commit(){
 
 			if(!parent::commit()) return false;
@@ -162,6 +186,14 @@
 
 		}
 
+		/**
+		 * Build Retrival SQL
+		 *
+		 * @param $data
+		 * @param $joins
+		 * @param $where
+		 * @return bool
+		 */
 		public function buildDSRetrivalSQL($data, &$joins, &$where) {
 
 			$field_id = $this->get('id');
@@ -204,6 +236,14 @@
 			return true;
 		}
 
+		/**
+		 * Validate the posted data
+		 *
+		 * @param array $data
+		 * @param string $message
+		 * @param null $entry_id
+		 * @return int
+		 */
 		function checkPostFieldData($data, &$message, $entry_id=NULL){
 
 			$message = NULL;
@@ -225,6 +265,15 @@
 
 		}
 
+		/**
+		 * Process the raw field data
+		 *
+		 * @param mixed $data
+		 * @param int $status
+		 * @param bool $simulate
+		 * @param null $entry_id
+		 * @return array
+		 */
 		public function processRawFieldData($data, &$status, $simulate = false, $entry_id = null) {
 
             $status = self::__OK__;
@@ -253,7 +302,14 @@
             return $result;
 		}
 
-
+		/**
+		 * Apply the text formatter
+		 *
+		 * @param $data
+		 * @param bool $validate
+		 * @param null $errors
+		 * @return bool|mixed|string
+		 */
 		protected function __applyFormatting($data, $validate=false, &$errors=NULL){
 
 			if($this->get('formatter')){
@@ -285,10 +341,24 @@
 			return $result;
 		}
 
+		/**
+		 * Replace the ampersands
+		 *
+		 * @param $value
+		 * @return mixed
+		 */
 		private function __replaceAmpersands($value) {
 			return preg_replace('/&(?!(#[0-9]+|#x[0-9a-f]+|amp|lt|gt);)/i', '&amp;', trim($value));
 		}
 
+		/**
+		 * Add the formatted element to the XML output
+		 *
+		 * @param \XMLElement $wrapper
+		 * @param array $data
+		 * @param bool $encode
+		 * @param null $mode
+		 */
 		public function appendFormattedElement(&$wrapper, $data, $encode = false, $mode = null) {
             $element = new XMLElement($this->get('element_name'));
 
@@ -335,6 +405,14 @@
             $wrapper->appendChild($element);
 		}
 
+		/**
+		 * Check the fields
+		 *
+		 * @param array $required
+		 * @param bool $checkForDuplicates
+		 * @param bool $checkForParentSection
+		 * @return int
+		 */
 		function checkFields(&$required, $checkForDuplicates=true, $checkForParentSection=true){
 			$required = array();
 			if($this->get('size') == '' || !is_numeric($this->get('size'))) $required[] = 'size';
@@ -342,10 +420,21 @@
 
 		}
 
+		/**
+		 * Find default values
+		 *
+		 * @param array $fields
+		 */
 		function findDefaults(&$fields){
 			if(!isset($fields['size'])) $fields['size'] = 15;
 		}
 
+		/**
+		 * Display the settings panel
+		 *
+		 * @param \XMLElement $wrapper
+		 * @param null $errors
+		 */
 		public function displaySettingsPanel(&$wrapper, $errors = null) {
 			parent::displaySettingsPanel($wrapper, $errors);
 
@@ -361,9 +450,9 @@
 
 
 			## Textarea Size
-            $group = new XMLElement('div', null, array('class'=>'group'));
+            $group = new XMLElement('div', null, array('class'=>'compact'));
 			$label = Widget::Label();
-			$input = Widget::Input('fields['.$this->get('sortorder').'][size]', $this->get('size'));
+			$input = Widget::Input('fields['.$this->get('sortorder').'][size]', (string)$this->get('size'));
 			$input->setAttribute('size', '3');
 			$label->setValue(__('Make textarea %s rows tall', array($input->generate())));
 			$group->appendChild($label);
@@ -380,14 +469,17 @@
             $group->appendChild($label);
             $wrapper->appendChild($group);
 
-
-
 			$div =  new XMLElement('div', NULL, array('class' => 'compact'));
 			$this->appendRequiredCheckbox($div);
 			$this->appendShowColumnCheckbox($div);
 			$wrapper->appendChild($div);
 		}
 
+		/**
+		 * Create the data table
+		 *
+		 * @return bool
+		 */
 		function createTable(){
 
 			return Symphony::Database()->query(
@@ -404,6 +496,11 @@
 			);
 		}
 
+		/**
+		 * Get example form markup
+		 *
+		 * @return XMLElement
+		 */
 		public function getExampleFormMarkup(){
 			$label = Widget::Label($this->get('label'));
 			$label->appendChild(Widget::Textarea('fields['.$this->get('element_name').']', $this->get('size'), 50));
@@ -411,6 +508,11 @@
 			return $label;
 		}
 
+		/**
+		 * Fetch the includable elements
+		 *
+		 * @return array
+		 */
 		public function fetchIncludableElements() {
 
 			if ($this->get('formatter')) {
@@ -424,6 +526,49 @@
 				$this->get('element_name')
 			);
 		}
+
+		/**
+		 * Prepare the table value to display in the index page
+		 *
+		 * @param array $data
+		 * @param null|XMLElement $link
+		 * @param null $entry_id
+		 * @return string
+		 */
+		public function prepareTableValue($data, XMLElement $link = null, $entry_id = null) {
+			$max_length = Symphony::Configuration()->get('cell_truncation_length', 'symphony');
+			$max_length = ($max_length ? $max_length : 75);
+
+			if(is_array($data['value']))
+			{
+				$value = strip_tags($data['value'][0]);
+			} else {
+				$value = strip_tags($data['value']);
+			}
+
+			if(function_exists('mb_substr') && function_exists('mb_strlen')) {
+				$value = (mb_strlen($value, 'utf-8') <= $max_length ? $value : mb_substr($value, 0, $max_length, 'utf-8') . '…');
+			}
+			else {
+				$value = (strlen($value) <= $max_length ? $value : substr($value, 0, $max_length) . '…');
+			}
+
+			if(is_array($data['value']))
+			{
+				$value .= ' <em>('.__('%s tabs in total', array(count($data['tab']))).')</em>';
+			}
+
+			if (strlen($value) == 0) $value = __('None');
+
+			if ($link) {
+				$link->setValue($value);
+
+				return $link->generate();
+			}
+
+			return $value;
+		}
+
 
 	}
 

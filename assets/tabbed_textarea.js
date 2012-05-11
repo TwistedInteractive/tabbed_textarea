@@ -3,34 +3,13 @@ var ckFound    = false;
 var intervalID = -1;
 
 jQuery(function($){
-    ckFound = $("div.field-tabbed_textarea textarea.ckeditor").length > 0;
+    ckFound = $("div.field-tabbed_textarea div[class^='ck_']").length > 0;
 
     $("div.field-tabbed_textarea ul.tabs li:first").addClass("active");
     $("div.field-tabbed_textarea textarea:not(:first)").hide();
 
     if(ckFound)
     {
-        // Set the configurationdata:
-        var configurationData = {};
-        configurationData.language = 'en';
-        configurationData.skin = 'chris';
-        configurationData.replaceByClassEnabled = false;
-        configurationData.forcePasteAsPlainText = true;
-        configurationData.format_tags = 'p;h1;h2;h3';
-        configurationData.entities_processNumerical = 'force';
-        configurationData.filebrowserBrowseUrl = Symphony.ADMIN + '/extension/ckeditor/filebrowser/';
-        configurationData.toolbar =
-        [
-            ['Format'],
-            ['Bold', 'Italic', 'Strike', '-', 'Subscript', 'Superscript'],
-            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote'],
-            ['Image'],['Link', 'Unlink'],
-            ['HorizontalRule'],
-            ['Source', 'Maximize']
-        ];
-        configurationData.resize_enabled = true;
-        configurationData.removePlugins = 'font,styles';
-        configurationData.startupOutlineBlocks = true;
         intervalID = setInterval('checkForCKEditor()', 100);
     }
 
@@ -62,7 +41,7 @@ jQuery(function($){
             {
                 // Convert new textarea to a ckeditor instance:
                 var instance = $("div.field-tabbed_textarea > div > textarea:last")[0];
-                CKEDITOR.replace(instance, configurationData);
+                CKEDITOR.replace(instance, ck_configurationData);
             }
             $("div.field-tabbed_textarea li.tab" + total + " input").focus();
             $("div.field-tabbed_textarea li.tab" + total).click(function(){

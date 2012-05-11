@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="tabbed_textarea" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+	<name>Tabbed Textarea</name>
+	<description>Ever wanted more textareas for one field?</description>
+	<repo type="github">https://github.com/kanduvisla/tabbed_textarea</repo>
+	<url type="discuss">http://symphony-cms.com/discuss/thread/67831/</url>
+	<types>
+		<type>Field Types</type>
+	</types>
+	<authors>
+		<author>
+			<name github="kanduvisla" symphony="kanduvisla">Giel Berkers</name>
+			<website>http://www.gielberkers.com</website>
+		</author>
+	</authors>
+	<releases>
+		<release version="1.1" date="2012-05-11" min="2.3" />
+		<release version="1.0" date="2011-04-29" min="2.2" />
+	</releases>
+	<media>
+		<item type="image" url="http://i.imgur.com/UbbM6.png">Example with CKEditor.</item>
+	</media>
+</extension>

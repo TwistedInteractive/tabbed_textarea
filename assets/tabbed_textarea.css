@@ -1,61 +1,56 @@
-div.field-tabbed_textarea > div > i
-{
-    float: right;
-}
 div.field-tabbed_textarea ul.tabs {
-    margin: 0;
+	position: relative;
+	top: 3px;
 }
+
 div.field-tabbed_textarea ul.tabs li {
-    display: block;
-    float: left;
-    border: 1px solid #ccc;
-    border-bottom: 0;
-    padding: 4px 10px 4px 10px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-right: 2px;
-    border-radius: 3px 3px 0 0;
+	width: 175px;
 }
-div.field-tabbed_textarea ul.tabs li input {
-    width: auto;
-    height: auto;
-    padding: 0;
-    margin: 0;
-    border: none;
-    background: transparent;
-    color: #999;
-}
-div.field-tabbed_textarea ul.tabs li input.focus, div.field-tabbed_textarea ul.tabs li.active input {
-    color: #000;
-    font-weight: bold;
-}
-div.field-tabbed_textarea ul.tabs li input[readonly=readonly] {
-    cursor: pointer;
-}
-div.field-tabbed_textarea ul.tabs li.active {
-    color: #000;
-    background: #ddb;
-}
-div.field-tabbed_textarea ul.tabs li a.delete {
-    /* font-size: 10px; */
-    text-decoration: none;
-    color: #fff;
-    background: #ccc;
-    padding: 1px 3px;
-    border-radius: 7px;
-    margin-left: 5px;
-}
-div.field-tabbed_textarea ul.tabs li a.delete:hover {
-    background: #800;
-}
+
 div.field-tabbed_textarea ul.tabs li.new {
-    background: #ddd;
-    color: #000;
+	width: auto;
 }
-div.field-tabbed_textarea textarea {
-    margin-top: 0;
+
+div.field-tabbed_textarea ul.tabs li a.delete {
+	position: absolute;
+	top: 4px;
+	right: 10px;
+	border: none;
+	color: rgba(0, 0, 0, 0.5);
 }
+
+div.field-tabbed_textarea ul.tabs li a.delete:hover {
+	color: rgba(0, 0, 0, 1);
+}
+
+div.field-tabbed_textarea ul.tabs li input {
+	position: relative;
+	outline: none;
+	top: -6px;
+	border: none;
+	background: transparent;
+	color: rgba(0, 0, 0, 0.5);
+	cursor: pointer;
+	width: 140px;
+}
+
+div.field-tabbed_textarea ul.tabs li.active {
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-bottom: 1px solid #fff;
+	background: #f5f5f5;
+	color: rgba(0, 0, 0, 0.65);
+}
+
+div.field-tabbed_textarea ul.tabs li.active input {
+	font-weight: bold;
+	color: #000;
+}
+
 /* CKEditor support: */
+div.field-tabbed_textarea div[class^="ck_"] ul.tabs {
+	top: 1px;
+}
+
 span[id^='cke_fields'] {
     display: block;
     clear: both;
