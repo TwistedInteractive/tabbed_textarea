@@ -2,16 +2,12 @@
 <extension id="tabbed_textarea" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
 	<name>Tabbed Textarea</name>
 	<description>Ever wanted more textareas for one field?</description>
-	<repo type="github">https://github.com/kanduvisla/tabbed_textarea</repo>
-	<url type="discuss">http://symphony-cms.com/discuss/thread/67831/</url>
+	<repo type="github">https://github.com/TwistedInteractive/tabbed_textarea</repo>
 	<types>
 		<type>Field Types</type>
 	</types>
 	<authors>
-		<author>
-			<name github="kanduvisla" symphony="kanduvisla">Giel Berkers</name>
-			<website>http://www.gielberkers.com</website>
-		</author>
+	
 	</authors>
 	<releases>
 		<release version="1.1" date="2012-05-11" min="2.3" />
